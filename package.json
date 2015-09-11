@@ -1,0 +1,17 @@
+{
+  "name": "nuget-docker",
+  "version": "1.0.0",
+  "description": "Nuget server that proxies to a docker repository",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "adm-zip": "^0.4.7",
+    "express": "^4.13.3",
+    "jszip": "^2.5.0",
+    "restling": "^0.9.1"
+  }
+}
