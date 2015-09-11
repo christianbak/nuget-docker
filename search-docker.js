@@ -113,7 +113,7 @@ module.exports = {
 	login: function (user, pass, repo, localServer) {
 		username = user;
 		password = pass;
-		privateRepo = privateRepo;
+		privateRepo = repo;
 		server = localServer;
 	},
 	search: searchRepositories,

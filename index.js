@@ -1,4 +1,3 @@
-var rest = require('restler');
 var express = require('express');
 var search = require('./search-docker.js');
 
@@ -65,6 +64,15 @@ app.get('/packages*', function (req, res) {
   	res.send(pack);
 });
 
+app.get('*', function (req, res) {
+
+  console.log('Unknow request', req.originalUrl);
+
+  res.send('OK')
+  return;
+}
+
+//var rest = require('restler');
 // app.get('*', function (req, res) {
 
 //   console.log(req.readable, req.originalUrl);
