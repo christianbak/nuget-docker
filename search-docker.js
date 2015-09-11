@@ -44,7 +44,7 @@ function fetch(path) {
 
 function searchRepositories(query) {
 	var q = new RegExp(query, 'gi');
-	return fetch('/repositories/' + privateRepo).then(function (result) {
+	return fetch('/repositories/' + privateRepo + 'page_size=200').then(function (result) {
 		var searchResult = result.data.results.filter(function(image){
 			return q.exec(image.namespace + '/' + image.name);
 		});
