@@ -1,11 +1,11 @@
 var rest = require('restler');
-var localIP = 'packages.nuget.org';
-
 var express = require('express');
-var app = express();
-
 var search = require('./search-docker.js');
 
+var app = express();
+
+search.login('username', 'password', 'orgname', 'http://localhost:3000');
+search.login('christianbak', 'Hen300ry', 'gotoassist', 'http://localhost:3000');
 
 app.get('/api/v2/Packages()*', function (req, res) {
 	res.set({
@@ -15,22 +15,21 @@ app.get('/api/v2/Packages()*', function (req, res) {
 	var versionsRX = /filter=tolower\(Id\) eq \'([^\']*)\'/.exec(unescape(req.originalUrl));
 	var specificRX = /Id=\'([^']+)\',Version=\'([^']+)\'/.exec(unescape(req.originalUrl));
 	
-	var query;
+	var query, image, version;
 	if (req.originalUrl.indexOf('IsLatestVersion%20or%20IsAbsoluteLatestVersion') >= 0) {
 		query = /substringof\(\'([^\']*)\'/gi.exec(req.originalUrl);
 		search.search(query && query.length && query[1]).then(function(result) {
 			res.send(result);	
 		});
 	} else if(versionsRX) {
-		var image = unescape(versionsRX[1]).replace('-','/');
+		image = unescape(versionsRX[1]).replace('-','/');
 		search.versions(image).then(function(result) {
 			res.send(result);
 		});	
 		console.log('Get versions', versionsRX[1]);
 	} else if(specificRX) {
-
-		var image = unescape(specificRX[1].replace('-','/'));
-		var version = specificRX[2];
+		image = unescape(specificRX[1].replace('-','/'));
+		version = specificRX[2];
 		search.specific(image, version).then(function(result) {
 			res.send(result);
 		});
@@ -90,14 +89,15 @@ app.get('/packages*', function (req, res) {
 
 // });
 
-var server = app.listen(80, function () {
+var server = app.listen(3000, function () {
 	var host = server.address().address;
 	var port = server.address().port;
 
-	console.log('Example app listening at http://%s:%s', host, port);
+	console.log('Listening at http://%s:%s', host, port);
 });
 
 
+//var localIP = 'packages.nuget.org';
 // function replaceUrl(content) {
 // 	if (typeof(content) !== 'string') return content;
 // 	//console.log(content, typeof(content));

@@ -28,41 +28,10 @@ function getCoreProperties(data) {
 	return '<?xml version="1.0" encoding="UTF-8"?><coreProperties xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"><dc:creator>root</dc:creator><dc:description>' + data.packageDescription + '</dc:description><dc:identifier>' + data.packageName + '</dc:identifier><keywords /><lastModifiedBy>NuGet, Version=2.8.50926.602, Culture=neutral, PublicKeyToken=null;Unix 4.0.3.2;.NET Framework 4</lastModifiedBy><version>' + data.imageVersion + '</version></coreProperties>';
 }
 
-// function getNuSpec(data) {
-// 	return '<?xml version="1.0" encoding="us-ascii"?><package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd"><metadata><id>G2A-API2</id><version>0.0.204</version><authors>root</authors><owners>root</owners><requireLicenseAcceptance>false</requireLicenseAcceptance><description>Test package</description><releaseNotes>Automatatic build.</releaseNotes><copyright>Copyright 2015</copyright></metadata></package>';
-// }
-
-// function getRels(packageName) {
-// 	return '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="Re0" Target="/G2A-API.nuspec" Type="http://schemas.microsoft.com/packaging/2010/07/manifest" /><Relationship Id="Re1" Target="/package/services/metadata/core-properties/1.psmdcp" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" /></Relationships>';
-// }
-
-// function getContentTypes() {
-// 	return '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default ContentType="application/vnd.openxmlformats-package.relationships+xml" Extension="rels" /><Default ContentType="application/octet" Extension="nuspec" /><Default ContentType="application/octet" Extension="json" /><Default ContentType="application/octet" Extension="txt" /><Default ContentType="application/vnd.openxmlformats-package.core-properties+xml" Extension="psmdcp" /></Types>';
-// }
-
-// function getCoreProperties(data) {
-// 	return '<?xml version="1.0" encoding="UTF-8"?><coreProperties xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"><dc:creator>root</dc:creator><dc:description>Test package</dc:description><dc:identifier>G2A-API</dc:identifier><keywords /><lastModifiedBy>NuGet, Version=2.8.50926.602, Culture=neutral, PublicKeyToken=null;Unix 4.0.3.2;.NET Framework 4</lastModifiedBy><version>0.0.203</version></coreProperties>';
-// }
-
-// function buildPackage(data) {
-// 	var zip = new AdmZip();
-// 	// add file directly
-//     zip.addFile("_rels/.rels", new Buffer(getRels(data.packageName)));
-//     zip.addFile("content/docker_image.txt", new Buffer(data.image  + data.imageVersion));
-//     zip.addFile("[Content_Types].xml", new Buffer(getContentTypes()));
-//     zip.addFile(data.packageName + '.nuspec', new Buffer(getNuSpec(data)));
-//     zip.addFile("package/services/metadata/core-properties/1.psmdcp", new Buffer(getCoreProperties(data)));
-
-//   	return zip.toBuffer();
-// };
-
-
 function zipPackage(data) {
 	var zip = new JSZip();
 
-	// add file directly
-
-	console.log('IMAGE', '' + data.image + data.imageVersion);
+	console.log('Zip image', '' + data.image + data.imageVersion);
     zip.file("_rels/.rels", getRels(data.packageName));
     zip.file("content/docker_image.txt", data.image  + data.imageVersion);
     zip.file("[Content_Types].xml", getContentTypes());

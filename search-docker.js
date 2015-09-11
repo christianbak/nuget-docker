@@ -1,10 +1,9 @@
 var createFeed = require('./create-feed.js');
 var repo = 'https://hub.docker.com';
-var server = 'http://packages.nuget.org';
+var server = 'http://localhost:3000';
 var token;
 var rest = require('restling');
-var username, password;
-
+var username, password, privateRepo;
 
 function getToken() {
 	if (token) {
@@ -45,7 +44,7 @@ function fetch(path) {
 
 function searchRepositories(query) {
 	var q = new RegExp(query, 'gi');
-	return fetch('/repositories/gotoassist').then(function (result) {
+	return fetch('/repositories/' + privateRepo).then(function (result) {
 		var searchResult = result.data.results.filter(function(image){
 			return q.exec(image.namespace + '/' + image.name);
 		});
@@ -111,9 +110,11 @@ function fullImageToFeed(fullImage) {
 }
 
 module.exports = {
-	login: function (user, pass) {
+	login: function (user, pass, repo, localServer) {
 		username = user;
 		password = pass;
+		privateRepo = privateRepo;
+		server = localServer;
 	},
 	search: searchRepositories,
 	versions: getVersions,
