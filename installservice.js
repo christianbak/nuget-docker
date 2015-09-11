@@ -2,9 +2,9 @@ var Service = require('node-windows').Service;
 
 // Create a new service object
 var svc = new Service({
-  name:'Hello World',
-  description: 'The nodejs.org example web server.',
-  script: 'C:\\path\\to\\helloworld.js'
+  name:'Nuget-Docker',
+  description: 'Nuget to docker wrapper.',
+  script: 'C:\\Users\\Administrator\\nuget-docker'
 });
 
 // Listen for the "install" event, which indicates the
