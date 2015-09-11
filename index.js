@@ -70,7 +70,7 @@ app.get('*', function (req, res) {
 
   res.send('OK')
   return;
-}
+});
 
 //var rest = require('restler');
 // app.get('*', function (req, res) {
