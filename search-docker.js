@@ -56,7 +56,7 @@ function searchRepositories(query) {
 function getVersions(image) {
 	return fetch('/repositories/' + image + '/tags').then(function (result) {
 		var versions = result.data.results.filter(function(tag) {
-			return tag.name.match(/^\d+\.\d+\.\d+$/);
+			return tag.name.match(/^\d+\.\d+\.\d+(\.\d+)?$/);
 		});
 		var mappedVersions = versions.map(tagToVersion(image));
 		return createFeed(mappedVersions);
