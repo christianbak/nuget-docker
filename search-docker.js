@@ -1,3 +1,4 @@
+var Promise = require('promise');
 var createFeed = require('./create-feed.js');
 var repo = 'https://hub.docker.com';
 var server = 'http://localhost:3000';
@@ -56,7 +57,7 @@ function searchRepositories(query) {
 function getVersions(image) {
 	return fetch('/repositories/' + image + '/tags').then(function (result) {
 		var versions = result.data.results.filter(function(tag) {
-			return tag.name.match(/^\d+\.\d+\.\d+$/);
+			return tag.name.match(/^\d+\.\d+\.\d+(\.\d+)?(-.*)?$/);
 		});
 		var mappedVersions = versions.map(tagToVersion(image));
 		return createFeed(mappedVersions);
