@@ -1,5 +1,5 @@
 var express = require('express');
-var search = require('./search-docker.js');
+var search = require('./search-artifactory.js');
 
 var app = express();
 
@@ -63,11 +63,21 @@ app.get('/packages*', function (req, res) {
   	res.send(pack);
 });
 
+
+
 app.get('*', function (req, res) {
 
   console.log('Unknow request', req.originalUrl);
 
-  res.send('OK')
+  query = ['concierge', 'concierge'];
+	search.search(query && query.length && query[1]).then(function(result) {
+		res.set({
+			'Content-Type': 'application/atom+xml'
+		});
+		res.send(result);
+	});
+
+  //res.send('OK')
   return;
 });
 
