@@ -1,58 +1,43 @@
 var createFeed = require('./create-feed.js');
 var repo = 'https://artifactory.prodwest.citrixsaassbe.net/artifactory';
 var server = 'http://localhost:3000';
-var token;
 var rest = require('restling');
 var username, password, privateRepo;
-
-function getToken() {
-	return '';
-	// if (token) {
-	// 	return Promise.resolve(token);
-	// }
-
-	// return rest.post(repo + '/v2/users/login', {
-	// 	data: JSON.stringify({
-	// 		username: username,
-	// 		password: password
-	// 	}),
-	// 	headers: {
-	// 		'Content-Type': 'application/json',
-	// 		'Accept': 'application/json'
-	// 	}
-	// }).then(function(result) {
-	// 	if (result.data.token) {
-	// 		token = result.data.token;
-	// 		return token;
-	// 	} else {
-	// 		console.log('Error login in:', result);
-	// 		return Promise.reject('Error logging in');
-	// 	}
-			
-	// });
-}
 
 function fetch(path) {
 		return rest.get(repo + path, {
 			headers: {
-				'Accept': 'application/json'
-			}
+				'Accept': 'application/json',
+				//'Authorization' : 'Basic cmVhZG9ubHk6cmVhZG9ubHk='
+			},
+			username: username,
+			password: password
 		});
 }
 
 function searchRepositories(query) {
-	var q = new RegExp(query, 'gi');
-	return fetch('/api/search/prop?docker.repoName=*' + query + '*').then(function (result) {
-		var mappedResult = result.data.results.map(uriToFeed); 
+	return rest.post(repo + '/api/search/aql', {
+		headers: {
+			'Accept': 'application/json',
+			//'Authorization' : 'Basic cmVhZG9ubHk6cmVhZG9ubHk=',
+			'Content-Type': 'plain/text'
+		},
+		username: username,
+		password: password,
+		data: 'items.find({ "@docker.repoName":{"$match":"*' + query + '*"} })'
+	}).then(function (result) {
+		var mappedResult = result.data.results.map(artifactToFeed); 
 		return createFeed(mappedResult);
 	});
 }
 
 function getVersions(image) {
-	return fetch('/repositories/' + image + '/tags').then(function (result) {
-		var versions = result.data.results.filter(function(tag) {
-			return tag.name.match(/^\d+\.\d+\.\d+$/);
+	return fetch('/api/storage/docker/repositories/' + image + '?list=&deep=0&listFolders=1&mdTimestamps=1').then(function (result) {
+		var versions = result.data.files.filter(function(tag) {
+			return tag.folder && //Must be a folder
+				tag.uri.match(/\/\d+\.\d+\.\d+(\-[a-zA-Z][0-9a-zA-Z]*)?$/); //And must have correct semantic versioning format
 		});
+		console.log('Versions', versions);
 		var mappedVersions = versions.map(tagToVersion(image));
 		return createFeed(mappedVersions);
 	});
@@ -60,24 +45,27 @@ function getVersions(image) {
 
 function getImage(image, version) {
 	console.log('Get specific image', image, version);
-	return Promise.all([
-		fetch('/repositories/' + image + '/tags'),
-		fetch('/repositories/' + image)
-	]).then(function(results){
-		var imageResult = results[1].data;
-		imageResult.tag = results[0].data.results.filter(function(tag) { return tag.name === version; })[0];
-		return createFeed(fullImageToFeed(imageResult));
-	});
+	return fetch('/api/storage/docker/repositories/' + image + '/' + version)
+		.then(function(result){
+			console.log(result.data);
+			return createFeed({
+				id: server + '/packages/' + image + ':' + version,
+			    name: image,
+			    sourceUrl: server + '/packages/' + image + ':' + version,
+			    version: version,
+			    description: '-',
+			    created: new Date(result.data.lastModified)
+			});
+		});
 }
 
-
-function uriToFeed (result) {
-	var image = result.uri.match(/docker\/repositories\/(.*)\/_index_images.json/);
-	image = image.length > 1 ? image[1] : '';
+function artifactToFeed (result) {
+	var image = result.path.replace('repositories/', '');
 	image = {
 		namespace: image.substr(0, image.indexOf('/')),
 		name: image.substr(image.indexOf('/') + 1),
-		last_updated: Date.now()
+		last_updated: result.modified,
+		created: result.created
 	};
 	console.log(image)
 	return {
@@ -100,36 +88,29 @@ function imageToFeed (image) {
       created: new Date(image.last_updated)
    };
 }
+
 function tagToVersion(image) {
 	return function (tag) {
+		var tagName = tag.uri.substring(1) //Remove leading '/'
 		return {
-	      id: server + '/packages/' + image + '/' + tag.name,
+	      id: server + '/packages/' + image + '/' + tagName,
 	      name: image,
-	      sourceUrl: server + '/packages/' + image + '/' + tag.name,
-	      version: tag.name,
+	      sourceUrl: server + '/packages/' + image + '/' + tagName,
+	      version: tagName,
 	      description: '-',
-	      created: new Date()
+	      created: new Date(tag.lastModified)
 	   };
 	}
 }
 
-function fullImageToFeed(fullImage) {
-	return {
-		id: server + '/packages/' + fullImage.namespace + '/' + fullImage.name + ':' + fullImage.tag.name,
-	    name: fullImage.namespace + '/' + fullImage.name,
-	    sourceUrl: server + '/packages/' + fullImage.namespace + '/' + fullImage.name + ':' + fullImage.tag.name,
-	    version: fullImage.tag.name,
-	    description: fullImage.description ||  '-',
-	    created: new Date(fullImage.last_updated)
-	};
-}
 
 module.exports = {
-	login: function (user, pass, repo, localServer) {
+	login: function (user, pass, repo, localServer, remoteHost) {
 		username = user;
 		password = pass;
 		privateRepo = repo;
 		server = localServer;
+		repo = remoteHost;
 	},
 	search: searchRepositories,
 	versions: getVersions,

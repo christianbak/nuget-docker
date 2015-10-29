@@ -110,11 +110,12 @@ function fullImageToFeed(fullImage) {
 }
 
 module.exports = {
-	login: function (user, pass, repo, localServer) {
+	login: function (user, pass, repo, localServer, remoteHost) {
 		username = user;
 		password = pass;
 		privateRepo = repo;
 		server = localServer;
+		repo = remoteHost;
 	},
 	search: searchRepositories,
 	versions: getVersions,
