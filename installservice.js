@@ -4,7 +4,7 @@ var Service = require('node-windows').Service;
 var svc = new Service({
   name:'Nuget-Docker',
   description: 'Nuget to docker wrapper.',
-  script: 'C:\\Users\\Administrator\\nuget-docker'
+  script: 'C:\\Users\\Administrator\\nuget-docker\\index.js'
 });
 
 // Listen for the "install" event, which indicates the
