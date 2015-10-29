@@ -3,7 +3,7 @@ var search = require('./search-docker.js');
 
 var app = express();
 
-search.login('username', 'password', 'orgname', 'http://localhost:3000');
+search.login('username', 'password', 'org', 'http://localhost:3000');
 
 app.get('/api/v2/Packages()*', function (req, res) {
 	res.set({
