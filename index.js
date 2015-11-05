@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+var repository;
 
 //Use Docker hub
 var search = require('./search-docker.js');
@@ -8,6 +9,7 @@ var search = require('./search-docker.js');
 //Use artifactory
 var search = require('./search-artifactory.js');
 search.login('readonly', 'readonly', '', 'http://10.0.1.14:3000', 'https://artifactory.prodwest.citrixsaassbe.net/artifactory');
+repository = 'artifactory.prodwest.citrixsaassbe.net:5000';
 
 app.get('/api/v2/Packages()*', function (req, res) {
 	res.set({
@@ -55,6 +57,7 @@ app.get('/packages*', function (req, res) {
 	var conf = {
 		packageName: image.replace('/', '-'),
 		image: image,
+		repository: repository,
 		imageVersion: version,
 		packageDescription: '-'
 	};
