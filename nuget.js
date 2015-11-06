@@ -33,7 +33,11 @@ function zipPackage(data) {
 
 	console.log('Zip image', '' + data.image + data.imageVersion);
     zip.file("_rels/.rels", getRels(data.packageName));
-    zip.file("content/docker_image.txt", data.image + ':' + data.imageVersion);
+    if (data.repository) {
+        zip.file("content/docker_image.txt", data.repository + '/' + data.image + ':' + data.imageVersion);
+    } else {
+        zip.file("content/docker_image.txt", data.image + ':' + data.imageVersion);
+    }
     zip.file("[Content_Types].xml", getContentTypes());
     zip.file(data.packageName + '.nuspec', getNuSpec(data));
     zip.file("package/services/metadata/core-properties/1.psmdcp", getCoreProperties(data));

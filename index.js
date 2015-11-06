@@ -1,9 +1,11 @@
 var express = require('express');
-var search = require('./search-docker.js');
-
 var app = express();
 
-search.login('username', 'password', 'org', 'http://localhost:3000');
+var settings = require('./settings.js');
+var repository = settings.repositoryPrefix;
+var search = settings.search;
+
+search.login(settings.user, settings.pass, settings.repo, 'http://' + settings.hostDomain + ':' + settings.hostPort , settings.remoteHost);
 
 app.get('/api/v2/Packages()*', function (req, res) {
 	res.set({
@@ -28,7 +30,9 @@ app.get('/api/v2/Packages()*', function (req, res) {
 	} else if(specificRX) {
 		image = unescape(specificRX[1].replace('-','/'));
 		version = specificRX[2];
+
 		search.specific(image, version).then(function(result) {
+			console.log('specific', result);
 			res.send(result);
 		});
 		console.log('Fetch specific', image, version);
@@ -49,6 +53,7 @@ app.get('/packages*', function (req, res) {
 	var conf = {
 		packageName: image.replace('/', '-'),
 		image: image,
+		repository: repository,
 		imageVersion: version,
 		packageDescription: '-'
 	};
@@ -63,40 +68,33 @@ app.get('/packages*', function (req, res) {
   	res.send(pack);
 });
 
+
+//var rest = require('restler');
 app.get('*', function (req, res) {
 
-  console.log('Unknow request', req.originalUrl);
+  console.log(req.readable, req.originalUrl);
 
   res.send('OK')
   return;
+  // var url = 'http://packages.nuget.org' + req.originalUrl;
+  // console.log('url', url);
+  // rest.get(url, {headers: {'accept': 'application/atom+xml'}}).on('complete', function (result, response) {
+  // 	if (result instanceof Error) {
+  //   	console.log('Error:');
+  //   } else {
+  // 		res.set({
+  // 			'Content-Type': response.headers['content-type']
+  // 		});
+
+  // 		//console.log(replaceUrl(result));
+  // 		//require('./simple.js')
+  // 		res.send( replaceUrl(result));
+  //   }
+  // });
+
 });
 
-//var rest = require('restler');
-// app.get('*', function (req, res) {
-
-//   console.log(req.readable, req.originalUrl);
-
-//   res.send('OK')
-//   return;
-//   var url = 'http://packages.nuget.org' + req.originalUrl;
-//   console.log('url', url);
-//   rest.get(url, {headers: {'accept': 'application/atom+xml'}}).on('complete', function (result, response) {
-//   	if (result instanceof Error) {
-//     	console.log('Error:');
-//     } else {
-//   		res.set({
-//   			'Content-Type': response.headers['content-type']
-//   		});
-
-//   		//console.log(replaceUrl(result));
-//   		//require('./simple.js')
-//   		res.send( replaceUrl(result));
-//     }
-//   });
-
-// });
-
-var server = app.listen(3000, function () {
+var server = app.listen(settings.hostPort, function () {
 	var host = server.address().address;
 	var port = server.address().port;
 
