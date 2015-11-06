@@ -1,15 +1,11 @@
 var express = require('express');
 var app = express();
-var repository;
 
-//Use Docker hub
-var search = require('./search-docker.js');
-//search.login('username', 'password', 'gotoassist', 'http://localhost:3000', 'https://hub.docker.com');
+var settings = require('./settings.js');
+var repository = settings.repositoryPrefix;
+var search = settings.search;
 
-//Use artifactory
-var search = require('./search-artifactory.js');
-search.login('readonly', 'readonly', '', 'http://10.0.1.14:3000', 'https://artifactory.prodwest.citrixsaassbe.net/artifactory');
-repository = 'artifactory.prodwest.citrixsaassbe.net:5000';
+search.login(settings.user, settings.pass, settings.repo, 'http://' + settings.hostDomain + ':' + settings.hostPort , settings.remoteHost);
 
 app.get('/api/v2/Packages()*', function (req, res) {
 	res.set({
@@ -98,7 +94,7 @@ app.get('*', function (req, res) {
 
 });
 
-var server = app.listen(3000, function () {
+var server = app.listen(settings.hostPort, function () {
 	var host = server.address().address;
 	var port = server.address().port;
 
