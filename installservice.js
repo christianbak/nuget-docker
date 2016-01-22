@@ -2,9 +2,9 @@ var Service = require('node-windows').Service;
 
 // Create a new service object
 var svc = new Service({
-  name:'Nuget-Docker',
+  name:'Nuget-Docker-Artifactory',
   description: 'Nuget to docker wrapper.',
-  script: 'C:\\Users\\Administrator\\nuget-docker\\index.js'
+  script: 'C:\\nuget-docker\\artifactory\\index.js'
 });
 
 // Listen for the "install" event, which indicates the
