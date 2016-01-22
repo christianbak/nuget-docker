@@ -35,7 +35,7 @@ function getVersions(image) {
 	return fetch('/api/storage/docker/repositories/' + image + '?list=&deep=0&listFolders=1&mdTimestamps=1').then(function (result) {
 		var versions = result.data.files.filter(function(tag) {
 			return tag.folder && //Must be a folder
-				tag.uri.match(/\/\d+\.\d+\.\d+(\-[a-zA-Z][0-9a-zA-Z]*)?$/); //And must have correct semantic versioning format
+				tag.uri.match(/\/\d+\.\d+\.\d+(\-[a-zA-Z][0-9a-zA-Z\-]*)?$/); //And must have correct semantic versioning format
 		});
 		console.log('Versions', versions);
 		var mappedVersions = versions.map(tagToVersion(image));
