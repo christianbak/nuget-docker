@@ -32,7 +32,7 @@ function searchRepositories(query) {
 }
 
 function getVersions(image) {
-	return fetch('/api/storage/docker/repositories/' + image + '?list=&deep=0&listFolders=1&mdTimestamps=1').then(function (result) {
+	return fetch('/api/storage/dockerv2/' + image + '?list=&deep=0&listFolders=1&mdTimestamps=1').then(function (result) {
 		var versions = result.data.files.filter(function(tag) {
 			return tag.folder && //Must be a folder
 				tag.uri.match(/\/\d+\.\d+\.\d+(\-[a-zA-Z][0-9a-zA-Z\-]*)?$/); //And must have correct semantic versioning format
@@ -45,7 +45,7 @@ function getVersions(image) {
 
 function getImage(image, version) {
 	console.log('Get specific image', image, version);
-	return fetch('/api/storage/docker/repositories/' + image + '/' + version)
+	return fetch('/api/storage/dockerv2/' + image + '/' + version)
 		.then(function(result){
 			console.log(result.data);
 			return createFeed({
@@ -61,6 +61,7 @@ function getImage(image, version) {
 
 function artifactToFeed (result) {
 	var image = result.path.replace('repositories/', '');
+	var image = result.path.replace(/\/[0-9]+\.[0-9]+\.[0-9]+.*/, '');
 	image = {
 		namespace: image.substr(0, image.indexOf('/')),
 		name: image.substr(image.indexOf('/') + 1),
